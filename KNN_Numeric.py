@@ -1,4 +1,6 @@
 import numpy as np
+from scipy.io import arff
+import pandas as pd
 
 # knn for numeric prediction
 
@@ -14,3 +16,16 @@ class KNN_Class:
     
     def predict(self, parameter_list):
         pass
+
+def remove_missing(data):
+    return data.dropna(how='any').to_numpy()   
+
+def main():
+    data_set = arff.loadarff('autos.arff')
+    data = pd.DataFrame(data_set[0])
+    filtered = remove_missing(data)
+    #Manhattan_Test(data)
+    #Euclidean_Test(data)
+
+if __name__ == "__main__":
+    main()
