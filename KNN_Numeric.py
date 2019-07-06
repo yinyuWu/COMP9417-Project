@@ -2,6 +2,7 @@ import numpy as np
 from scipy.io import arff
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
+from distance import Manhattan, Euclidean
 
 # knn for numeric prediction
 
@@ -11,18 +12,12 @@ class KNN_Numeric:
         self.labels = labels
         self.k_neighbours = k_neighbours
     
-    def Manhattan(self, x1, x2):
-        return np.sum(np.abs(x1-x2)[0])
-    
-    def Euclidean(self, x1, x2):
-        return np.sqrt(np.sum((x1-x2)**2))
-    
     def predict(self, ux):
         # Find nearest k neighbours by Euclidean/Manhattan distance
         n = self.x_data.shape[0]    
         dists = np.zeros((n, 2))
         for i in range(n):                                              
-            dists[i][0] = self.Euclidean(self.x_data[i], ux)
+            dists[i][0] = Euclidean(self.x_data[i], ux)
             dists[i][1] = self.labels[i]
 
         sorted_dists = dists[np.argsort(dists[:,0])]      # Sort by distances which is 1st column              

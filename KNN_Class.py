@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.io import arff
 import pandas as pd
+from distance import Manhattan, Euclidean
 
 # knn for classification
 
@@ -10,17 +11,11 @@ class KNN_Class:
         self.lables = data[:, -1]
         self.k_neighbours = k_neighbours
     
-    def Manhattan(self, x1, x2):
-        return np.sum(np.abs(x1-x2)[0])
-    
-    def Euclidean(self, x1, x2):
-        return np.sqrt(np.sum((x1-x2)**2))
-    
     def predict(self, ux):
         # find nearest k neibours by Euclidean distance
         dist = np.zeros((len(self.x_data), 2))
         for i in range(self.x_data.shape[0]):
-            p_distance = self.Euclidean(self.x_data[i], ux)
+            p_distance = Euclidean(self.x_data[i], ux)
             dist[i, 0] = p_distance
             dist[i, 1] = self.lables[i]
         dist = dist[dist[:,0].argsort()]
