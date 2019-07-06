@@ -18,12 +18,20 @@ class KNN_Class:
         pass
 
 def remove_missing(data):
-    return data.dropna(how='any').to_numpy()   
+    return data.dropna(how='any')
+
+def remove_categorical(data):
+    return data.drop(['make', 'fuel-type', 'aspiration', 'num-of-doors', 'body-style', 
+                'drive-wheels', 'engine-location', 'engine-type', 'num-of-cylinders', 
+                'fuel-system'], axis=1, inplace=True)
 
 def main():
     data_set = arff.loadarff('autos.arff')
     data = pd.DataFrame(data_set[0])
-    filtered = remove_missing(data)
+
+    # Remove missing values and remove any categorical labels (Note: temporary as we can encode these categorical labels later)
+    filtered = remove_categorical(remove_missing(data)).to_numpy()  
+
     #Manhattan_Test(data)
     #Euclidean_Test(data)
 
