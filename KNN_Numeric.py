@@ -1,16 +1,15 @@
 import numpy as np
-from scipy.io import arff
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from distance import Manhattan, Euclidean
+from KNN import KNN
+from scipy.io import arff
 
 # knn for numeric prediction
 
-class KNN_Numeric:
+class KNN_Numeric(KNN):
     def __init__(self, x_data, labels, k_neighbours):
-        self.x_data = x_data
-        self.labels = labels
-        self.k_neighbours = k_neighbours
+        super(KNN_Numeric, self).__init__(x_data, labels, k_neighbours)
     
     def predict(self, ux):
         # Find nearest k neighbours by Euclidean/Manhattan distance
@@ -59,9 +58,6 @@ def main():
 
     # TEMPORARY TEST FOR KNN NUMERIC
     Test_KNN_Numeric(x_data, labels.to_numpy())
-
-    #Manhattan_Test(data)
-    #Euclidean_Test(data)
 
 if __name__ == "__main__":
     main()
