@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import collections
+import random
 from scipy.io import arff
 from KNN import KNN
 from distance import Euclidean, Manhattan
@@ -27,20 +28,19 @@ class KNN_Class(KNN):
         count = collections.Counter(neighbours)
         return count.most_common(1)[0][0]
 
-def Test_KNN_Class(x_data, labels):
-    acc = 0
-    total = 10
+
+def cross_validation(x_data, labels):
+    test_num = random.randint(0, x_data.shape[0])
     # seperate test and training data. 10 for test set, and rest for training set
-    x_test = x_data[:10, :]
-    x_train = x_data[10:, :]
-    y_test = labels[:10]
-    y_train = labels[10:]
+    x_test = x_data[test_num, :]
+    x_train = np.concatenate((x_data[:test_num, :], x_data[test_num+1:, :]), axis = 0)
+    #print("To test: " + str(test_num))
+    #print("x training set shape: " + str(x_train.shape))
+    y_test = labels[test_num]
+    y_train = np.concatenate((labels[:test_num], labels[test_num+1:]),axis = 0)
     knn = KNN_Class(x_train, y_train, 7)
-    for i in range(10):
-        predicted_label = knn.predict(x_test[i])
-        if (predicted_label == y_test[i]):
-            acc+=1
-    return acc/total
+    label_predict = knn.predict(x_test)
+    return label_predict == y_test
 
 
 
@@ -49,8 +49,15 @@ def main():
     data = pd.DataFrame(data_set[0]).to_numpy()
     x_data = data[:, :-1]
     labels = data[:, -1]
-    acc = Test_KNN_Class(x_data, labels) * 100
-    print("Accuracy of kNN classification is " + str(acc) + "%")
+
+    correct = 0
+    total = 20
+    #print(x_data.shape)
+    for i in range(20):
+        if (cross_validation(x_data, labels)):
+            correct += 1
+            #print("Correct!")
+    print("Accuracy of knn is " + str(correct/total))
     
 
 
