@@ -4,6 +4,7 @@ from sklearn.preprocessing import MinMaxScaler
 from distance import Manhattan, Euclidean
 from KNN import KNN
 from scipy.io import arff
+from sklearn.model_selection import LeaveOneOut
 
 # knn for numeric prediction
 
@@ -37,7 +38,28 @@ def Test_KNN_Numeric(x_data, labels):
     print(f'Predicted Price: {knn.predict(x_test)}')
     print(f'Actual Price: {y_test}')
     
+def cross_validation(x_data, labels):
+    # Scale numeric features so they are between 0-1
+    scaler = MinMaxScaler()
+    scaled_x_data = scaler.fit_transform(x_data)
 
+    # Leave One Out Cross Validation
+    loo = LeaveOneOut()
+    predicted_error = []
+    for train_index, test_index in loo.split(scaled_x_data):
+        # Split training and test data
+        X_train, X_test = scaled_x_data[train_index], scaled_x_data[test_index]
+        y_train, y_test = labels[train_index], labels[test_index]
+        knn = KNN_Numeric(X_train, y_train, 7)
+        
+        # Predict value
+        predicted_value = knn.predict(X_test[0])
+        # Store difference between predicted value and actual value in array 
+        predicted_error.append(predicted_value - y_test[0])
+    
+    # Determine the std deviation of predicted error
+    print(f"Std deviation of predicted error of KNN: {np.std(predicted_error)}") 
+    
 def main():
     # Load data from autos.aff
     data_set = arff.loadarff('autos.arff')
@@ -53,11 +75,13 @@ def main():
     print(filtered.shape)
 
     # Separate labels & x-data
-    labels = filtered['price']
+    labels = filtered['price'].to_numpy()
     x_data = filtered.drop('price', axis=1)
 
     # TEMPORARY TEST FOR KNN NUMERIC
-    Test_KNN_Numeric(x_data, labels.to_numpy())
+    Test_KNN_Numeric(x_data, labels)
+
+    cross_validation(x_data, labels)
 
 if __name__ == "__main__":
     main()
