@@ -9,7 +9,7 @@ from sklearn.model_selection import LeaveOneOut
 # knn for numeric prediction
 
 class KNN_Numeric(KNN):
-    def __init__(self, x_data, labels, k_neighbours):
+    def __init__(self, x_data=[], labels=[], k_neighbours=7):
         super(KNN_Numeric, self).__init__(x_data, labels, k_neighbours)
     
     def predict(self, ux):
@@ -24,6 +24,37 @@ class KNN_Numeric(KNN):
         neighbours = sorted_dists[:self.k_neighbours]     # Take only the closest k neighbours
         return np.mean(neighbours[:,1])                   # Return mean of 2nd column which is labels of neighbours
 
+
+class WKNN_Numeric(KNN):
+    def __init__(self, x_data=[], labels=[], k_neighbours=7):
+        super(WKNN_Numeric, self).__init__(x_data, labels, k_neighbours)
+    
+    def calc_weight(self, dist=1):  # Temporary formula for weight
+        if dist == 0:
+            dist = 0.00000000001
+        return 1/dist
+
+    def predict(self, ux):
+        # Find nearest k neighbours by Euclidean/Manhattan distance
+        n = self.x_data.shape[0]    
+        dists = np.zeros((n, 2))
+        for i in range(n):                                              
+            dists[i][0] = Euclidean(self.x_data[i], ux)
+            dists[i][1] = self.labels[i]
+
+        sorted_dists = dists[np.argsort(dists[:,0])]      # Sort by distances which is 1st column              
+        neighbours = sorted_dists[:self.k_neighbours]     # Take only the closest k neighbours
+        
+        # Calculate weighted sum average
+        total_value = 0
+        total_weight = 0
+        for i in range(len(neighbours)):
+            weight = self.calc_weight(neighbours[i][0])
+            total_weight += weight 
+            total_value += (weight*neighbours[i][1])
+        return total_value/total_weight                 
+
+
 def Test_KNN_Numeric(x_data, labels):
     # Scale numeric features so they are between 0-1
     scaler = MinMaxScaler()
@@ -37,8 +68,8 @@ def Test_KNN_Numeric(x_data, labels):
     knn = KNN_Numeric(x_train, y_train, 7)
     print(f'Predicted Price: {knn.predict(x_test)}')
     print(f'Actual Price: {y_test}')
-    
-def cross_validation(x_data, labels):
+
+def cross_validation(x_data, labels, knn, k_neighbours=7):
     # Scale numeric features so they are between 0-1
     scaler = MinMaxScaler()
     scaled_x_data = scaler.fit_transform(x_data)
@@ -50,7 +81,11 @@ def cross_validation(x_data, labels):
         # Split training and test data
         X_train, X_test = scaled_x_data[train_index], scaled_x_data[test_index]
         y_train, y_test = labels[train_index], labels[test_index]
-        knn = KNN_Numeric(X_train, y_train, 7)
+        
+        # Set training data to knn 
+        knn.x_data = X_train
+        knn.labels = y_train
+        knn.k_neighbours = k_neighbours
         
         # Predict value
         predicted_value = knn.predict(X_test[0])
@@ -58,8 +93,9 @@ def cross_validation(x_data, labels):
         predicted_error.append(predicted_value - y_test[0])
     
     # Determine the std deviation of predicted error
-    print(f"Std deviation of predicted error of KNN: {np.std(predicted_error)}") 
+    print(f"Std deviation of predicted error of KNN: {np.std(predicted_error)}")     
     
+
 def main():
     # Load data from autos.aff
     data_set = arff.loadarff('autos.arff')
@@ -79,9 +115,17 @@ def main():
     x_data = filtered.drop('price', axis=1)
 
     # TEMPORARY TEST FOR KNN NUMERIC
-    Test_KNN_Numeric(x_data, labels)
+    # Test_KNN_Numeric(x_data, labels)
 
-    cross_validation(x_data, labels)
+    # Cross Validation for KNN
+    print("Cross Validation for normal KNN")
+    for i in range(1,10):
+        cross_validation(x_data, labels, KNN_Numeric(), i)
+
+    # Cross Validiation for KNN Weighted
+    print("Cross Validation for weighted KNN")
+    for i in range(1, 10):
+        cross_validation(x_data, labels, WKNN_Numeric(), i)
 
 if __name__ == "__main__":
     main()
