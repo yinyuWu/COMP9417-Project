@@ -5,6 +5,7 @@ import random
 from scipy.io import arff
 from KNN import KNN
 from distance import Euclidean, Manhattan
+from sklearn.model_selection import LeaveOneOut
 
 
 # knn for classification
@@ -27,6 +28,44 @@ class KNN_Class(KNN):
         # count frequencies of these lables then sort
         count = collections.Counter(neighbours)
         return count.most_common(1)[0][0]
+
+class WKNN_Class(KNN):
+    def __init__(self, x_data=[], labels=[], k_neighbours=7):
+        super(WKNN_Class, self).__init__(x_data, labels, k_neighbours)
+    
+    def calc_weight(self, dist):
+        if dist == 0:
+            dist = 0.00000000001
+        return 1/dist
+    
+    def predict(self, ux):
+        # find nearest k neibours by Euclidean distance
+        dist = []
+        for i in range(self.x_data.shape[0]):
+            p_distance = Euclidean(self.x_data[i], ux)
+            dist.append((self.labels[i], p_distance))
+        dist = sorted(dist, key = lambda d : d[1])
+
+        neighbours = []
+        weights = []
+        neighbour_dict = {}
+
+        for k in range(self.k_neighbours):
+            w = self.calc_weight(neighbours[k][1])
+            neighbours.append(dist[k][0])
+            weights.append(w)
+
+        # sum weights of the same lable
+        neighbour_set = set(neighbours)
+        for each in neighbour_set:
+            w_sum = 0
+            for i in range(len(neighbours)):
+                if (neighbours[i] == each):
+                    w_sum += weights[i]
+            neighbour_dict[each] = w_sum
+        
+        sorted_neighbour = sorted(neighbour_dict.items(), key=lambda kv:kv[1], reverse=True)
+        return sorted_neighbour[0][0]
 
 
 def cross_validation(x_data, labels):
