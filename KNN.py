@@ -7,5 +7,5 @@ class KNN(ABC):
         self.k_neighbours = k_neighbours
     
     @abstractmethod
-    def predict(self, ux):
+    def predict(self, ux, method=None):
         pass

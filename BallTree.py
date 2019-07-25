@@ -1,5 +1,6 @@
 import numpy as np
 from distance import Euclidean
+from sklearn.preprocessing import LabelEncoder
 
 '''
 function construct_balltree is
@@ -23,20 +24,25 @@ function construct_balltree is
        end if
    end function
 '''
+'''
+data = x_data + label
+centroid = x_data
+'''
+
 class BallTree():
     def __init__(self, data):
         if(data.shape[0] <= 1):
             self.data = data
-            self.centroid = data
+            self.centroid = data[:-1]
             self.radius = 0
             self.left_child = None
             self.right_child = None
         else:
             self.data = data
-            dim_c = self.find_largest_dim(data)
+            dim_c = self.find_largest_dim(data[:-1])
             sorted_data = self.find_sorted_data(data, dim_c)
             size = data.shape[0]
-            self.centroid = sorted_data[int(size/2)]
+            self.centroid = sorted_data[int(size/2)][:-1]
             self.left_child = BallTree(np.asarray(sorted_data[:int(size/2)]))
             self.right_child = BallTree(np.asarray(sorted_data[int(size/2)+1:]))
             self.radius = self.find_radius()
@@ -50,8 +56,8 @@ class BallTree():
     def find_radius(self):
         radius = 0
         for each in self.data:
-            if (Euclidean(self.centroid, each) > radius):
-                radius = Euclidean(self.centroid, each)
+            if (Euclidean(self.centroid, each[:-1]) > radius):
+                radius = Euclidean(self.centroid, each[:-1])
         return radius
     
     def getData(self):
@@ -70,8 +76,16 @@ class BallTree():
 
 
 def test():
-    data1 = np.asarray([[1,2,3,4],[5,7,1,2],[4,3,2,1],[1,4,8,4]])
-    ballTree1 = BallTree(data1)
+    label = np.asarray(['a', 'b', 'a', 'a'])
+    data1 = np.asarray([[1.1,2.5,3.0,4.7],[5.1,7.2,1.3,2.1],[4.5,3.6,2.2,1.2],[1.1,4.9,8.6,4.7]])
+    le = LabelEncoder()
+    label = le.fit_transform(label)
+    #print(label)
+    data = np.concatenate([data1, np.ones((data1.shape[0],1),dtype=data1.dtype)], axis=1)
+    for i in range(len(label)):
+        data[i, -1] = label[i]
+    print(data)
+    ballTree1 = BallTree(data)
     ballTree1.printInfo()
 
 if __name__ == "__main__":
