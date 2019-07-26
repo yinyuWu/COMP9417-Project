@@ -32,14 +32,28 @@ centroid = x_data
 class BallTree():
     def __init__(self, data, distance):
         self.d = distance
-        if(data.shape[0] <= 1):
-            self.data = data
-            self.centroid = data[:-1]
+        self.data = data
+        if (data == []):
+            self.centroid = None
             self.radius = 0
             self.left_child = None
             self.right_child = None
+        elif(len(data.shape) == 1 or data.shape[0]==1):
+            #print(data)
+            #print(data.shape)
+            if data.shape[0] == 1:
+                self.centroid = data[0][:-1]
+            else:
+                self.centroid = data[:-1]
+            self.radius = 0
+            self.left_child = None
+            self.right_child = None
+        elif(data.shape[0] == 2):
+            self.centroid = data[0][:-1]
+            self.radius = self.find_radius()
+            self.left_child = None
+            self.right_child = BallTree(data[1], self.d)
         else:
-            self.data = data
             dim_c = self.find_largest_dim(data[:-1])
             sorted_data = self.find_sorted_data(data, dim_c)
             size = data.shape[0]

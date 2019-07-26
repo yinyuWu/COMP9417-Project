@@ -61,6 +61,7 @@ class KNN_Class(KNN):
         return count.most_common(1)[0][0]
     
     def add_queue(self, q, item):
+        #print(item)
         q.append(item)
         return sorted(q, key = lambda d : d[1], reverse=True)
     
@@ -70,50 +71,51 @@ class KNN_Class(KNN):
     def extract_knn(self, q):
         neighbour = []
         for each in q:
-            neighbour.append(self.le.inverse_transform(each[0][-1]))
+            print(each[0])
+            neighbour.append(self.le.inverse_transform(int(each[0][-1])))
         return neighbour
 
     # ***********************************
     
-    def BallTreeSearch(self, balltree, ux):
-        Q = []
+    def BallTreeSearch(self, balltree, ux, Q):
 
         # if distance(t, B.pivot) - B.radius ≥ distance(t, Q.first) then return Q unchanged
         if (len(Q)>0):
-            if (self.d.distance(balltree.centroid, ux) - balltree.radius >= self.d.distance(Q[0], ux)):
+            if (self.d.distance(balltree.centroid, ux) - balltree.radius >= self.d.distance(Q[0][0], ux)):
                 return Q
 
         # if current node is a leaf node
         elif (balltree.right_child == None and balltree.left_child == None):
             for each in balltree.data:
+                print(each)
+                if (len(Q) == 0):
+                    Q = self.add_queue(Q, (each, self.d.distance(each, ux)))
                 distance_ux = self.d.distance(each, ux)
-                distance_Q = self.d.distance(Q[0], ux)
+                distance_Q = self.d.distance(Q[0][0], ux)
                 if (distance_ux < distance_Q):
                     Q = self.add_queue(Q, (each, distance_ux))
                     if (len(Q) > self.k_neighbours):
                         Q = self.remove_queue(Q)
+
         # if current node is internal node
         else:
-            print("ball tree size: ")
-            print(len(balltree.data))
-            print("ball tree data:")
-            print(balltree.data)
             child1 = None
             child2 = None
-            '''
-            print("left child shape:")
-            print(balltree.left_child.centroid.shape)
-            print("right child shape:")
-            print(balltree.right_child.centroid.shape)
-            '''
-            if(self.d.distance(balltree.left_child.centroid, ux) >= self.d.distance(balltree.right_child.centroid, ux)):
-                child1 = balltree.right_child
-                child2 = balltree.left_child
+            
+            if (balltree.left_child != None and balltree.right_child != None):
+                if(self.d.distance(balltree.left_child.centroid, ux) >= self.d.distance(balltree.right_child.centroid, ux)):
+                    child1 = balltree.right_child
+                    child2 = balltree.left_child
+                else:
+                    child1 = balltree.left_child
+                    child2 = balltree.right_child
+                self.BallTreeSearch(child1, ux, Q)
+                self.BallTreeSearch(child2, ux, Q)
             else:
-                child1 = balltree.left_child
-                child2 = balltree.right_child
-            self.BallTreeSearch(child1, ux)
-            self.BallTreeSearch(child2, ux)
+                if (balltree.left_child != None and balltree.right_child == None):
+                    self.BallTreeSearch(balltree.left_child, ux, Q)
+                else:
+                    self.BallTreeSearch(balltree.right_child, ux, Q)
         return Q
 
                         
@@ -125,8 +127,9 @@ class KNN_Class(KNN):
         
         # find nearest k neibours by distance method
         if (method == "BallTree"):
+            Q = []
             data = self.preprocess_data()
-            neighbours = self.extract_knn(self.BallTreeSearch(BallTree(data, self.d), ux))
+            neighbours = self.extract_knn(self.BallTreeSearch(BallTree(data, self.d), ux, Q))
         else:
             # default method to search knn
             dist = self.default_search(ux)
