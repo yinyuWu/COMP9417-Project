@@ -8,6 +8,7 @@ class KNN(ABC):
         self.labels = labels
         self.k_neighbours = k_neighbours
     
+    # calculate distance
     def make_distance(self, distance):
         d = None
         if (distance == 'Euclidean'):
@@ -15,6 +16,15 @@ class KNN(ABC):
         if (distance == 'Manhattan'):
             d = Manhattan()
         return d
+    
+    # return sorted distance list 
+    def default_search(self, ux):
+        dist = []
+        for i in range(self.x_data.shape[0]):
+            p_distance = self.d.distance(self.x_data[i], ux)
+            dist.append((self.labels[i], p_distance))
+        dist = sorted(dist, key = lambda d : d[1])
+        return dist
     
     @abstractmethod
     def predict(self, ux, method=None):
