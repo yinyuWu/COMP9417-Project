@@ -1,5 +1,5 @@
 import numpy as np
-from distance import Euclidean
+from distance import Euclidean, Manhattan
 from sklearn.preprocessing import LabelEncoder
 
 '''
@@ -30,7 +30,8 @@ centroid = x_data
 '''
 
 class BallTree():
-    def __init__(self, data):
+    def __init__(self, data, distance):
+        self.d = distance
         if(data.shape[0] <= 1):
             self.data = data
             self.centroid = data[:-1]
@@ -43,8 +44,8 @@ class BallTree():
             sorted_data = self.find_sorted_data(data, dim_c)
             size = data.shape[0]
             self.centroid = sorted_data[int(size/2)][:-1]
-            self.left_child = BallTree(np.asarray(sorted_data[:int(size/2)]))
-            self.right_child = BallTree(np.asarray(sorted_data[int(size/2)+1:]))
+            self.left_child = BallTree(np.asarray(sorted_data[:int(size/2)]), self.d)
+            self.right_child = BallTree(np.asarray(sorted_data[int(size/2)+1:]), self.d)
             self.radius = self.find_radius()
     
     def find_largest_dim(self, data):
@@ -56,8 +57,8 @@ class BallTree():
     def find_radius(self):
         radius = 0
         for each in self.data:
-            if (Euclidean(self.centroid, each[:-1]) > radius):
-                radius = Euclidean(self.centroid, each[:-1])
+            if (self.d.distance(self.centroid, each[:-1]) > radius):
+                radius = self.d.distance(self.centroid, each[:-1])
         return radius
     
     def getData(self):
@@ -85,7 +86,7 @@ def test():
     for i in range(len(label)):
         data[i, -1] = label[i]
     print(data)
-    ballTree1 = BallTree(data)
+    ballTree1 = BallTree(data, Euclidean())
     ballTree1.printInfo()
 
 if __name__ == "__main__":

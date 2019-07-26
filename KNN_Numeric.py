@@ -17,7 +17,7 @@ class KNN_Numeric(KNN):
         n = self.x_data.shape[0]    
         dists = np.zeros((n, 2))
         for i in range(n):                                              
-            dists[i][0] = Euclidean(self.x_data[i], ux)
+            dists[i][0] = self.d.distance(self.x_data[i], ux)
             dists[i][1] = self.labels[i]
 
         sorted_dists = dists[np.argsort(dists[:,0])]      # Sort by distances which is 1st column              
@@ -39,7 +39,7 @@ class WKNN_Numeric(KNN):
         n = self.x_data.shape[0]    
         dists = np.zeros((n, 2))
         for i in range(n):                                              
-            dists[i][0] = Euclidean(self.x_data[i], ux)
+            dists[i][0] = self.d.distance(self.x_data[i], ux)
             dists[i][1] = self.labels[i]
 
         sorted_dists = dists[np.argsort(dists[:,0])]      # Sort by distances which is 1st column              

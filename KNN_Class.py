@@ -5,9 +5,9 @@ import random
 from BallTree import BallTree
 from scipy.io import arff
 from KNN import KNN
-from distance import Euclidean, Manhattan
 from sklearn.model_selection import LeaveOneOut
 from sklearn.preprocessing import LabelEncoder
+from distance import Euclidean, Manhattan
 
 
 # knn for classification
@@ -46,6 +46,7 @@ class KNN_Class(KNN):
     
     # Helper Functions
     # ***********************************
+
     def preprocess_data(self):
         le = LabelEncoder()
         transformed_label = le.fit_transform(self.labels)
@@ -55,38 +56,53 @@ class KNN_Class(KNN):
         return data
     
     def vote_class(self, q):
-        return q[0]
+        # count frequencies of these lables then sort
+        count = collections.Counter(q)
+        return count.most_common(1)[0][0]
     
     def add_queue(self, q, item):
         pass
     
-    def push_queue(self, q):
+    def remove_queue(self, q):
         pass
 
     # ***********************************
+    def default_search(self, d, ux):
+        dist = []
+        for i in range(self.x_data.shape[0]):
+            p_distance = d.distance(self.x_data[i], ux)
+            dist.append((self.labels[i], p_distance))
+        dist = sorted(dist, key = lambda d : d[1])
+
+        neighbours = []
+        for k in range(self.k_neighbours):
+            neighbours.append(dist[k][0])
+        return neighbours
     
     def BallTreeSearch(self, ux):
         data = self.preprocess_data()
         Q = []
-        balltree = BallTree(data)
+        balltree = BallTree(data, self.d)
 
         # if distance(t, B.pivot) - B.radius ≥ distance(t, Q.first) then return Q unchanged
         if (len(Q)>0):
-            if (Euclidean(balltree.centroid, ux) - balltree.radius >= Euclidean(Q[0], ux)):
+            if (self.d.distance(balltree.centroid, ux) - balltree.radius >= self.d.distance(Q[0], ux)):
                 return Q
 
         # if current node is a leaf node
         elif (balltree.right_child == None and balltree.left_child == None):
             for each in balltree.data:
-                if (Euclidean(each, ux) < Euclidean(Q[0], ux)):
+                distance_ux = self.d.distance(each, ux)
+                distance_Q = self.d.distance(Q[0], ux)
+                if (distance_ux < distance_Q):
                     self.add_queue(Q, each)
                     if (len(Q) > self.k_neighbours):
-                        self.push_queue(Q)
+                        self.remove_queue(Q)
         # if current node is internal node
         else:
             child1 = None
             child2 = None
-            if(Euclidean(balltree.left_child.centroid, ux) >= Euclidean(balltree.right_child.centroid, ux)):
+            if(self.d.distance(balltree.left_child.centroid, ux) >= self.d.distance(balltree.right_child.centroid, ux)):
                 child1 = balltree.right_child
                 child2 = balltree.left_child
             else:
@@ -94,26 +110,26 @@ class KNN_Class(KNN):
                 child2 = balltree.right_child
             self.BallTreeSearch(child1)
             self.BallTreeSearch(child2)
+        return Q
 
                         
     
     
-    def predict(self, ux, method=None):
+    def predict(self, ux, method=None, distance = 'Euclidean'):
+        d = self.make_distance(distance)
+        if (d == None):
+            print("No such distance method.")
         if (method == "BallTree"):
             return self.BallTreeSearch(ux)
+        
+        # default method to search knn
         # find nearest k neibours by Euclidean distance
-        dist = []
-        for i in range(self.x_data.shape[0]):
-            p_distance = Euclidean(self.x_data[i], ux)
-            dist.append((self.labels[i], p_distance))
-        dist = sorted(dist, key = lambda d : d[1])
-
-        neighbours = []
-        for k in range(self.k_neighbours):
-            neighbours.append(dist[k][0])
+        neighbours = self.default_search(d, ux)
         # count frequencies of these lables then sort
         count = collections.Counter(neighbours)
         return count.most_common(1)[0][0]
+
+    
 
 class WKNN_Class(KNN):
     def __init__(self, x_data=[], labels=[], k_neighbours=7):
@@ -124,14 +140,16 @@ class WKNN_Class(KNN):
             dist = 0.00000000001
         return 1/dist
     
-    def predict(self, ux, method = None):
+    def predict(self, ux, method = None, distance = 'Euclidean'):
+        if (self.d == None):
+            print("No such distance method.")
         if (method == 'BallTree'):
-            return self.BallTreePredict()
+            return self.BallTreeSearch(ux)
 
         # find nearest k neibours by Euclidean distance
         dist = []
         for i in range(self.x_data.shape[0]):
-            p_distance = Euclidean(self.x_data[i], ux)
+            p_distance = self.d.distance(self.x_data[i], ux)
             dist.append((self.labels[i], p_distance))
         dist = sorted(dist, key = lambda d : d[1])
 
@@ -156,7 +174,7 @@ class WKNN_Class(KNN):
         sorted_neighbour = sorted(neighbour_dict.items(), key=lambda kv:kv[1], reverse=True)
         return sorted_neighbour[0][0]
     
-    def BallTreePredict(self):
+    def BallTreeSearch(self, ux):
         return 0
 
 
