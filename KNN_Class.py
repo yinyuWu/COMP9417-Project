@@ -74,7 +74,7 @@ class KNN_Class(KNN):
             #print(each[0][-1])
             #print(self.le.classes_)
             predicted_v = np.array([each[0][-1]])
-            #print(self.le.inverse_transform(predicted_v)[0])
+            #print(self.le.inverse_transfo rm(predicted_v)[0])
             neighbour.append(self.le.inverse_transform(predicted_v)[0])
         print(neighbour)
         return neighbour
@@ -82,19 +82,23 @@ class KNN_Class(KNN):
     # ***********************************
     
     def BallTreeSearch(self, balltree, ux, Q):
-
+        #print("ball search starts...")
         # if distance(t, B.pivot) - B.radius ≥ distance(t, Q.first) then return Q unchanged
         if (len(Q)>0):
             if (self.d.distance(balltree.centroid, ux) - balltree.radius >= self.d.distance(Q[0][0][:-1], ux)):
+                #print("return unchanged queue")
                 return Q
 
         # if current node is a leaf node
-        elif (balltree.right_child == None and balltree.left_child == None):
+        if (balltree.right_child == None and balltree.left_child == None):
+            #print("Enter a leaf node")
             if (len(Q) == 0):
+                #print("add item into empty queue")
                 Q = self.add_queue(Q, (balltree.data, self.d.distance(balltree.data[:-1], ux)))
             else:
+                #print("continue adding item")
                 distance_ux = self.d.distance(balltree.data[:-1], ux)
-                distance_Q = self.d.distance(Q[0][0], ux)
+                distance_Q = self.d.distance(Q[0][0][:-1], ux)
                 if (distance_ux < distance_Q):
                     Q = self.add_queue(Q, (balltree.data, distance_ux))
                     if (len(Q) > self.k_neighbours):
@@ -123,12 +127,16 @@ class KNN_Class(KNN):
                 else:
                     child1 = balltree.left_child
                     child2 = balltree.right_child
+                #print("continue searching1")
                 self.BallTreeSearch(child1, ux, Q)
+                #print("search a further ball")
                 self.BallTreeSearch(child2, ux, Q)
             else:
                 if (balltree.left_child != None and balltree.right_child == None):
+                    #print("continue searching2")
                     self.BallTreeSearch(balltree.left_child, ux, Q)
                 else:
+                    #print("continue searching2")
                     self.BallTreeSearch(balltree.right_child, ux, Q)
         return Q
 
@@ -198,7 +206,7 @@ class WKNN_Class(KNN):
 
 
 def Test_KNN_Class(x_data, labels):
-    test_num = random.randint(0, x_data.shape[0])
+    test_num = random.randint(0, x_data.shape[0]-1)
     # seperate test and training data. 10 for test set, and rest for training set
     x_test = x_data[test_num, :]
     x_train = np.concatenate((x_data[:test_num, :], x_data[test_num+1:, :]), axis = 0)
@@ -206,7 +214,7 @@ def Test_KNN_Class(x_data, labels):
     #print("x training set shape: " + str(x_train.shape))
     y_test = labels[test_num]
     y_train = np.concatenate((labels[:test_num], labels[test_num+1:]),axis = 0)
-    knn = KNN_Class(x_train, y_train, 7)
+    knn = KNN_Class(x_train, y_train, k_neighbours=1)
     label_predict = knn.predict(x_test, method='BallTree')
     return label_predict == y_test
 
@@ -245,11 +253,14 @@ def main():
     
     correct = 0
     total = 20
+    #Test_KNN_Class(x_data, labels)
+
     for i in range(20):
         if (Test_KNN_Class(x_data, labels)):
             correct += 1
             #print("Correct!")
     print("Accuracy of knn is " + str(correct/total))
+
 
     '''
     # Cross Validation for KNN
