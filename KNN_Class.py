@@ -43,17 +43,9 @@ function knn_search is
 class KNN_Class(KNN):
     def __init__(self, x_data=[], labels=[], k_neighbours=7):
         super(KNN_Class, self).__init__(x_data, labels, k_neighbours)
-        self.le = LabelEncoder()
-        self.transformed_label = self.le.fit_transform(self.labels)
     
     # Helper Functions
     # ***********************************
-
-    def preprocess_data(self):
-        data = np.concatenate([self.x_data, np.ones((self.x_data.shape[0],1),dtype=self.x_data.dtype)], axis=1)
-        for i in range(self.x_data.shape[0]):
-            data[i, -1] = self.transformed_label[i]
-        return data
     
     def vote_class(self, q):
         # count frequencies of these lables then sort
@@ -61,7 +53,6 @@ class KNN_Class(KNN):
         return count.most_common(1)[0][0]
     
     def add_queue(self, q, item):
-        #print(item)
         q.append(item)
         return sorted(q, key = lambda d : d[1], reverse=True)
     
@@ -71,32 +62,24 @@ class KNN_Class(KNN):
     def extract_knn(self, q):
         neighbour = []
         for each in q:
-            #print(each[0][-1])
-            #print(self.le.classes_)
             predicted_v = np.array([each[0][-1]])
-            #print(self.le.inverse_transfo rm(predicted_v)[0])
             neighbour.append(self.le.inverse_transform(predicted_v)[0])
-        print(neighbour)
+        #print(neighbour)
         return neighbour
 
     # ***********************************
     
     def BallTreeSearch(self, balltree, ux, Q):
-        #print("ball search starts...")
         # if distance(t, B.pivot) - B.radius ≥ distance(t, Q.first) then return Q unchanged
         if (len(Q)>0):
             if (self.d.distance(balltree.centroid, ux) - balltree.radius >= self.d.distance(Q[0][0][:-1], ux)):
-                #print("return unchanged queue")
                 return Q
 
         # if current node is a leaf node
         if (balltree.right_child == None and balltree.left_child == None):
-            #print("Enter a leaf node")
             if (len(Q) == 0):
-                #print("add item into empty queue")
                 Q = self.add_queue(Q, (balltree.data, self.d.distance(balltree.data[:-1], ux)))
             else:
-                #print("continue adding item")
                 distance_ux = self.d.distance(balltree.data[:-1], ux)
                 distance_Q = self.d.distance(Q[0][0][:-1], ux)
                 if (distance_ux < distance_Q):
@@ -150,8 +133,7 @@ class KNN_Class(KNN):
         # find nearest k neibours by distance method
         if (method == "BallTree"):
             Q = []
-            data = self.preprocess_data()
-            neighbours = self.extract_knn(self.BallTreeSearch(BallTree(data, self.d), ux, Q))
+            neighbours = self.extract_knn(self.BallTreeSearch(self.balltree, ux, Q))
         else:
             # default method to search knn
             dist = self.default_search(ux)
@@ -214,8 +196,8 @@ def Test_KNN_Class(x_data, labels):
     #print("x training set shape: " + str(x_train.shape))
     y_test = labels[test_num]
     y_train = np.concatenate((labels[:test_num], labels[test_num+1:]),axis = 0)
-    knn = KNN_Class(x_train, y_train, k_neighbours=1)
-    label_predict = knn.predict(x_test, method='BallTree')
+    knn = KNN_Class(x_train, y_train, k_neighbours=7)
+    label_predict = knn.predict(x_test)
     return label_predict == y_test
 
 def cross_validation(x_data, labels, knn, k_neighbours=7):
@@ -228,12 +210,15 @@ def cross_validation(x_data, labels, knn, k_neighbours=7):
         y_train, y_test = labels[train_index], labels[test_index]
         
         # Set training data to knn 
+        knn.d = Euclidean()
         knn.x_data = X_train
         knn.labels = y_train
         knn.k_neighbours = k_neighbours
-
+        knn.le = LabelEncoder()
+        knn.transformed_label = knn.le.fit_transform(knn.labels)
+        knn.balltree = BallTree(knn.preprocess_data(), knn.d)
         # Predict value
-        predicted_value = knn.predict(X_test[0])
+        predicted_value = knn.predict(X_test[0], method="BallTree")
         if (predicted_value != y_test[0]):
             predicted_error+=1
         cnt+=1
@@ -250,12 +235,10 @@ def main():
     x_data = data[:, :-1]
     labels = data[:, -1]
     #print(x_data.shape)
-    
     correct = 0
-    total = 20
+    total = 100
     #Test_KNN_Class(x_data, labels)
-
-    for i in range(20):
+    for i in range(total):
         if (Test_KNN_Class(x_data, labels)):
             correct += 1
             #print("Correct!")
