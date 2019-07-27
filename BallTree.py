@@ -63,7 +63,7 @@ class BallTree():
             size = data.shape[0]
             self.centroid = sorted_data[int(size/2)][:-1]
             self.left_child = BallTree(np.asarray(sorted_data[:int(size/2)]), self.d)
-            self.right_child = BallTree(np.asarray(sorted_data[int(size/2)+1:]), self.d)
+            self.right_child = BallTree(np.asarray(sorted_data[int(size/2):]), self.d)
             self.radius = self.find_radius()
     
     def find_largest_dim(self, data):
