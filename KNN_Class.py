@@ -71,8 +71,12 @@ class KNN_Class(KNN):
     def extract_knn(self, q):
         neighbour = []
         for each in q:
-            print(each[0])
-            neighbour.append(self.le.inverse_transform(int(each[0][-1])))
+            #print(each[0][-1])
+            #print(self.le.classes_)
+            predicted_v = np.array([each[0][-1]])
+            #print(self.le.inverse_transform(predicted_v)[0])
+            neighbour.append(self.le.inverse_transform(predicted_v)[0])
+        print(neighbour)
         return neighbour
 
     # ***********************************
@@ -81,13 +85,22 @@ class KNN_Class(KNN):
 
         # if distance(t, B.pivot) - B.radius ≥ distance(t, Q.first) then return Q unchanged
         if (len(Q)>0):
-            if (self.d.distance(balltree.centroid, ux) - balltree.radius >= self.d.distance(Q[0][0], ux)):
+            if (self.d.distance(balltree.centroid, ux) - balltree.radius >= self.d.distance(Q[0][0][:-1], ux)):
                 return Q
 
         # if current node is a leaf node
         elif (balltree.right_child == None and balltree.left_child == None):
+            if (len(Q) == 0):
+                Q = self.add_queue(Q, (balltree.data, self.d.distance(balltree.data[:-1], ux)))
+            else:
+                distance_ux = self.d.distance(balltree.data[:-1], ux)
+                distance_Q = self.d.distance(Q[0][0], ux)
+                if (distance_ux < distance_Q):
+                    Q = self.add_queue(Q, (balltree.data, distance_ux))
+                    if (len(Q) > self.k_neighbours):
+                        Q = self.remove_queue(Q)
+            '''
             for each in balltree.data:
-                print(each)
                 if (len(Q) == 0):
                     Q = self.add_queue(Q, (each, self.d.distance(each, ux)))
                 distance_ux = self.d.distance(each, ux)
@@ -96,6 +109,7 @@ class KNN_Class(KNN):
                     Q = self.add_queue(Q, (each, distance_ux))
                     if (len(Q) > self.k_neighbours):
                         Q = self.remove_queue(Q)
+            '''
 
         # if current node is internal node
         else:
