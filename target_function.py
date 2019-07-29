@@ -2,7 +2,7 @@ import numpy as np
 #from labelEncoder import LabelEncoder
 
 # Helper Functions
-def prob_di(xi, h):
+def prob_di(xi, x_data, label, h):
     return 0
 
 
@@ -10,14 +10,14 @@ def prob_di(xi, h):
 # ph1: probability of h1
 # ph2: probability of h2
 
-def target(x, data):
+def target(x, x_data, label):
     # calculate p(h|D)  = p(D|h)p(h)/P(D)
 
     # calculate p(D|h1)
     h1 = 1
     for i in range(x.shape[0]):
         # calculate p(D(i)|h1)
-        pdi_h1 = prob_di(x[i], h1)
+        pdi_h1 = prob_di(x[i], x_data, label, h1)
 
     return 0
 
