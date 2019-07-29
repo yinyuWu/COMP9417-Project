@@ -86,7 +86,7 @@ def prob_error(x, predict, x_train, labels):
     return cnt/total
 
 def bayes_error(x, x_train, labels, predict):
-    # sum(p(error|x)p(x)) = p(error)
+    # p(error|x)p(x) = p(error)
     # calculate p(x)
     px = prob_x(x, x_train)
     p_error_x = prob_error(x, predict, x_train, labels)
