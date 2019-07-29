@@ -171,7 +171,7 @@ class WKNN_Class(KNN_Class):
         #print(len(q))
         #print(len(neighbour))
         return (neighbour, w)
-    
+
     def predict(self, ux, method = None, distance = 'Euclidean'):
         if (self.d == None):
             print("No such distance method.")
@@ -190,17 +190,22 @@ class WKNN_Class(KNN_Class):
                 w = self.calc_weight(dist[k][1])
                 neighbours.append(dist[k][0])
                 weights.append(w)
-
-        # sum weights of the same lable
-        neighbour_dict = {}
-        neighbour_set = set(neighbours)
-        for each in neighbour_set:
-            w_sum = 0
-            for i in range(len(neighbours)):
-                if (neighbours[i] == each):
-                    w_sum += weights[i]
-            neighbour_dict[each] = w_sum
         
+        # sum weights of the same label
+        neighbour_dict = {}
+        for i in range(len(neighbours)):
+            each = neighbours[i]
+            neighbour_dict[each] = neighbour_dict.get(each, 0)
+            neighbour_dict[each] += weights[i]
+
+        # get frequency of each label 
+        count = collections.Counter(neighbours)
+
+        # frequency * weight
+        for key, w in neighbour_dict.items():
+            freq = count.get(key,0)
+            neighbour_dict[key] = w*freq
+
         sorted_neighbour = sorted(neighbour_dict.items(), key=lambda kv:kv[1], reverse=True)
         return sorted_neighbour[0][0]
 
