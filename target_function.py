@@ -18,7 +18,9 @@ def prob_di(i, xi, x_data, label, h):
     for j in range(len(label)):
         if (label[j] == h and x_data[j][i] == xi):
             cnt+=1
-    return cnt/total
+    p = cnt/total
+    prob = (cnt + p)/(1+total)
+    return prob
 
 
 # x:input features (numpy array)
@@ -32,7 +34,8 @@ def target(x, x_data, label):
     h1 = label[0]
     prob1 = 1
     for i in range(x.shape[0]):
-        # calculate p(D(i)|h1)
+        # calculate p(D(i)|h1) = (nc + mp)/(n+m), m: weight, n: #train that h=hi, nc: #train that h=hi&x[i]=xi
+        # p: pior estimate for p(D(i)|h), assume weight = 1
         pdi_h1 = prob_di(i, x[i], x_data, label, h1)
         prob1 = prob1 * pdi_h1
     
@@ -51,7 +54,7 @@ def test():
     data = pd.DataFrame(data_set[0]).to_numpy()
     x_data = data[:, :-1]
     labels = data[:, -1]
-    test_size = int(len(labels)*0.4)
+    test_size = int(len(labels)*0.25)
     print("test size: "+str(test_size))
     x_train = x_data[test_size:]
     x_test = x_data[:test_size]
@@ -65,7 +68,31 @@ def test():
             cor += 1
     print("Accuracy of target function is: " + str(cor/test_size))
 
+def prob_x(xi, x_train):
+    cnt = 0
+    for each in x_train:
+        if xi==each:
+            cnt+=1
+    return cnt/x_train.shape[0]
+
+def prob_error(x, predict, x_train, labels):
+    cnt = 0
+    total = 0
+    for i in range(x_train.shape[0]):
+        if (x_train[i] == x):
+            total += 1
+        if (x_train[i] == x and labels[i] != predict):
+            cnt += 1
+    return cnt/total
+
+def bayes_error(x, x_train, labels, predict):
+    # sum(p(error|x)p(x)) = p(error)
+    # calculate p(x)
+    px = prob_x(x, x_train)
+    p_error_x = prob_error(x, predict, x_train, labels)
+    return px*p_error_x
+
 if __name__ == "__main__":
     test()
 
-# calculate bayes error rate
+
