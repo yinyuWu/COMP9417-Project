@@ -12,48 +12,42 @@ class KNN_Numeric(KNN):
     def __init__(self, x_data=[], labels=[], k_neighbours=7):
         super(KNN_Numeric, self).__init__(x_data, labels, k_neighbours)
     
-    def predict(self, ux):
-        # Find nearest k neighbours by Euclidean/Manhattan distance
-        n = self.x_data.shape[0]    
-        dists = np.zeros((n, 2))
-        for i in range(n):                                              
-            dists[i][0] = self.d.distance(self.x_data[i], ux)
-            dists[i][1] = self.labels[i]
+    def predict_value(self, neighbours):
+        return np.mean(neighbours)
 
-        sorted_dists = dists[np.argsort(dists[:,0])]      # Sort by distances which is 1st column              
-        neighbours = sorted_dists[:self.k_neighbours]     # Take only the closest k neighbours
-        return np.mean(neighbours[:,1])                   # Return mean of 2nd column which is labels of neighbours
+    def predict(self, ux, method=None, distance = 'Euclidean'):
+        dist = self.default_search(ux)
+        neighbours = []
+        for k in range(self.k_neighbours):
+            neighbours.append(dist[k][self.LABEL_INDEX])
+        return self.predict_value(neighbours)
 
 
-class WKNN_Numeric(KNN):
+class WKNN_Numeric(KNN_Numeric):
     def __init__(self, x_data=[], labels=[], k_neighbours=7):
         super(WKNN_Numeric, self).__init__(x_data, labels, k_neighbours)
     
+    def predict_value(self, neighbours):
+        # Calculate weighted sum average
+        total_value = 0
+        total_weight = 0
+        for i in range(len(neighbours)):
+            weight = self.calc_weight(neighbours[i][self.DISTANCE_INDEX])
+            total_weight += weight 
+            total_value += (weight*neighbours[i][self.LABEL_INDEX])
+        return total_value/total_weight     
+
     def calc_weight(self, dist=1):  # Temporary formula for weight
         if dist == 0:
             dist = 0.00000000001
         return 1/dist
 
     def predict(self, ux):
-        # Find nearest k neighbours by Euclidean/Manhattan distance
-        n = self.x_data.shape[0]    
-        dists = np.zeros((n, 2))
-        for i in range(n):                                              
-            dists[i][0] = self.d.distance(self.x_data[i], ux)
-            dists[i][1] = self.labels[i]
-
-        sorted_dists = dists[np.argsort(dists[:,0])]      # Sort by distances which is 1st column              
-        neighbours = sorted_dists[:self.k_neighbours]     # Take only the closest k neighbours
-        
-        # Calculate weighted sum average
-        total_value = 0
-        total_weight = 0
-        for i in range(len(neighbours)):
-            weight = self.calc_weight(neighbours[i][0])
-            total_weight += weight 
-            total_value += (weight*neighbours[i][1])
-        return total_value/total_weight                 
-
+        dist = self.default_search(ux)
+        neighbours = []
+        for k in range(self.k_neighbours):
+            neighbours.append(dist[k])
+        return self.predict_value(neighbours)
 
 def Test_KNN_Numeric(x_data, labels):
     # Scale numeric features so they are between 0-1

@@ -5,6 +5,9 @@ from BallTree import BallTree
 import numpy as np
 
 class KNN(ABC):
+    DISTANCE_INDEX = 1 
+    LABEL_INDEX = 0
+
     def __init__(self, x_data, labels, k_neighbours, distance='Euclidean'):
         self.d = self.make_distance(distance)
         self.x_data = x_data
@@ -31,7 +34,7 @@ class KNN(ABC):
         for i in range(self.x_data.shape[0]):
             p_distance = self.d.distance(self.x_data[i], ux)
             dist.append((self.labels[i], p_distance))
-        dist = sorted(dist, key = lambda d : d[1])
+        dist = sorted(dist, key = lambda d : d[self.DISTANCE_INDEX])
         return dist
 
     
