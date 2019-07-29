@@ -46,6 +46,7 @@ class KNN_Class(KNN):
         if (len(self.x_data)!=0):
             self.le = LabelEncoder()
             self.transformed_label = self.le.fit_transform(self.labels)
+            #print(self.transformed_label)
             self.balltree = BallTree(self.preprocess_data(), self.d)
     
     # Helper Functions
@@ -219,7 +220,7 @@ def Test_KNN_Class(x_data, labels):
     #print("x training set shape: " + str(x_train.shape))
     y_test = labels[test_size:]
     y_train = labels[:test_size]
-    knn = WKNN_Class(x_train, y_train, k_neighbours=5)
+    knn = KNN_Class(x_train, y_train, k_neighbours=5)
     correct = 0
     start = time.time()
     for i in range(test_size):
