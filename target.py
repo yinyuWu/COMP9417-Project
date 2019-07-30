@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from KNN_Class import KNN_Class, cross_validation
 
 """ Determining range of target function depending on the class probability 
 - Any data point that results in the function > 0, it is in class 1
@@ -67,12 +68,24 @@ def get_bayes_error(error, probability):
         min_error += err*p 
     return min_error
 
+""" Adding labels to data & shuffling for use in KNN """
+def make_useable_dataset(func, class_1, class_2):
+    # add labels to the dataset
+    data_1 = np.insert(class_1, 0, 1, axis=1)
+    data_2 = np.insert(class_2, 0, 2, axis=1)
+    
+    # combine them into one & shuffle 
+    data = np.concatenate((data_1, data_2), axis=0)
+    np.random.shuffle(data)
+    labels = data[:,0]
+    x_data = data[:,1:]
+    return x_data, labels
 
 if __name__=='__main__':
 
     p = 0.5
     num_f = 5
-    num_samples = 100
+    num_samples = 160
 
     func, range = generate_target_function(num_f, p)
     print('If point is greater than this function in all dimensions then it is in class 1, otherwise class 2')
@@ -106,8 +119,12 @@ if __name__=='__main__':
     probabilities.append(1-p)
     bayes_error = get_bayes_error(errors, probabilities)
     print(f'Bayes Error of this dataset is: {bayes_error:.2f}')
-    
 
+
+    print('------------------------------')
+    print('Using dataset with KNN...')
+    x_data, labels = make_useable_dataset(func=func, class_1=class_1, class_2=class_2)
+    cross_validation(x_data, labels, KNN_Class())
 
 
 
