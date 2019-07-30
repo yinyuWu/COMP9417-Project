@@ -50,23 +50,36 @@ def get_accuracy(dataset, func, predicted_label):
     return correct/total
         
 
-def bayes_error():
-    #TODO: calculate bayes error with this dataset
-    pass
+def get_error(dataset, func, predicted_label):
+    wrong = 0 
+    total = 0 
+    for point in dataset:
+        total += 1 
+        if func(point) > 0 and predicted_label == 2:
+            wrong += 1 
+        elif func(point) <= 0 and predicted_label == 1:
+            wrong += 1
+    return wrong/total 
+
+def get_bayes_error(error, probability):
+    min_error = 0
+    for err, p in zip(error, probability):
+        min_error += err*p 
+    return min_error
 
 
 if __name__=='__main__':
 
-    probability = 0.5
+    p = 0.5
     num_f = 5
     num_samples = 100
 
-    func, range = generate_target_function(num_f, probability)
+    func, range = generate_target_function(num_f, p)
     print('If point is greater than this function in all dimensions then it is in class 1, otherwise class 2')
     print(f'function: {func}')
 
     print('------------------------------')
-    print(f'Generating skewed data based on this target function {probability} probability between the two classes...')
+    print(f'Generating skewed data based on this target function {p} probability between the two classes...')
     # data = generate_dataset(range, num_samples, num_f)
     # print(data.shape)
     # print(data[:5])
@@ -75,14 +88,25 @@ if __name__=='__main__':
     print(class_1.shape, class_2.shape)
     print(f'First 5 of data points of class 1: \n{class_1[:5]}')
     acc_1 = get_accuracy(class_1, func, 1)
-    print(f'Accuracy of this prediction: {acc_1}')
+    print(f'Maximum accuracy using this dataset for class 1: {acc_1}')
 
     print(f'First 5 of data points of class 2: \n{class_2[:5]}')
     acc_2 = get_accuracy(class_2, func, 2)
-    print(f'Accuracy of this prediction: {acc_2}')
+    print(f'Maximum accuracy using this dataset for class 2: {acc_2}')
+    
 
-
-    print(f'Thus the KNN cannot achieve accuracy greater than {max(acc_1, acc_2)} with this dataset')
+    print('------------------------------')
+    errors = []
+    probabilities = []
+    errors.append(get_error(class_1, func, 1))
+    print(f'Probability of classifying class 2 as class 1: {errors[0]}')
+    probabilities.append(p)
+    errors.append(get_error(class_2, func, 2))
+    print(f'Probability of classifying class 1 as class 2: {errors[1]}')
+    probabilities.append(1-p)
+    bayes_error = get_bayes_error(errors, probabilities)
+    print(f'Bayes Error of this dataset is: {bayes_error:.2f}')
+    
 
 
 
