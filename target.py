@@ -31,20 +31,33 @@ def generate_dataset(p, n, target_f1, target_f2):
             class_1.append(target_f2.generate_point())
     return np.asarray(class_0), np.asarray(class_1)
     
-def calc_bayes_error(x_data, labels, target_f1, target_f2):
-    correct = 0
+def calc_bayes_error(x_data, labels, target_f1, p1, target_f2, p2):
+    err = 0
     for x, y in zip(x_data, labels):
-        p_target1 = target_f1.get_probability(x)
-        p_target2 = target_f2.get_probability(x)
-        if p_target1 > p_target2:
-            predicted = target_f1.class_label 
-        else:
-            predicted = target_f2.class_label 
-        if int(predicted) == int(y): 
-            correct += 1
-    acc = correct/len(labels)
-    print(f'Accuracy: {correct}/{len(labels)}')
-    return 1 - acc
+        # p(error|x) * p(x)
+        if y == target_f1.class_label:     
+            # error of classification in distribution 2 * prior of distribution 1 
+            err += target_f2.get_probability(x) * p1    
+        else:     
+            # error of classification in distribution 1 * prior of distribution 2                      
+            err += target_f1.get_probability(x) * p2    
+    return err
+
+# estimated bayes error
+# def calc_bayes_error(x_data, labels, target_f1, target_f2): 
+#     correct = 0
+#     for x, y in zip(x_data, labels):
+#         p_target1 = target_f1.get_probability(x)
+#         p_target2 = target_f2.get_probability(x)
+#         if p_target1 > p_target2:
+#             predicted = target_f1.class_label 
+#         else:
+#             predicted = target_f2.class_label 
+#         if int(predicted) == int(y): 
+#             correct += 1
+#     acc = correct/len(labels)
+#     print(f'Accuracy: {correct}/{len(labels)}')
+#     return 1 - acc
 
 """ Adding labels to data & shuffling for use in KNN """
 def make_useable_dataset(c1, label1, c2, label2):
@@ -94,8 +107,10 @@ if __name__=='__main__':
     print(f'First 2 data points of x_data:\n{x_data[:2]}')
     print(f'First 2 data points labels:\n{labels[:2]}')
 
-    err = calc_bayes_error(x_data, labels, target0, target1)
-    print(f'Estimated Bayes error rate on this dataset: {err}')
+    err = calc_bayes_error(x_data, labels, target0, p, target1, (1-p))
+    print(f'Bayes error rate on this dataset: {err:.8f}%')
+    # err = calc_bayes_error(x_data, labels, target0, target1)
+    # print(f'Estimated Bayes error rate on this dataset: {err}%')
 
     print('------------------------------')
     print('Using dataset with KNN...')
