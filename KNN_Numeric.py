@@ -63,11 +63,11 @@ def Test_KNN_Numeric(x_data, labels):
     print(f'Predicted Price: {knn.predict(x_test)}')
     print(f'Actual Price: {y_test}')
 
-def cross_validation(x_data, labels, knn, k_neighbours=7):
+def cross_validation(x_data, labels, knn, k_neighbours=7, distance = Euclidean()):
     # Scale numeric features so they are between 0-1
     scaler = MinMaxScaler()
     scaled_x_data = scaler.fit_transform(x_data)
-
+    knn.d = distance
     # Leave One Out Cross Validation
     loo = LeaveOneOut()
     predicted_error = []

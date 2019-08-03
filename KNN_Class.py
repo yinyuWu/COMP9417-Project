@@ -199,6 +199,7 @@ class WKNN_Class(KNN_Class):
             neighbour_dict[each] = neighbour_dict.get(each, 0)
             neighbour_dict[each] += weights[i]
 
+        
         # get frequency of each label 
         count = collections.Counter(neighbours)
 
@@ -206,6 +207,7 @@ class WKNN_Class(KNN_Class):
         for key, w in neighbour_dict.items():
             freq = count.get(key,0)
             neighbour_dict[key] = w*freq
+        
 
         sorted_neighbour = sorted(neighbour_dict.items(), key=lambda kv:kv[1], reverse=True)
         return sorted_neighbour[0][0]
@@ -230,7 +232,7 @@ def Test_KNN_Class(x_data, labels):
     end = time.time()
     return (correct/test_size, end-start)
 
-def cross_validation(x_data, labels, knn, k_neighbours=7):
+def cross_validation(x_data, labels, knn, k_neighbours=7, method = None, distance = Euclidean()):
     loo = LeaveOneOut()
     predicted_error = 0
     cnt = 0
@@ -240,15 +242,15 @@ def cross_validation(x_data, labels, knn, k_neighbours=7):
         y_train, y_test = labels[train_index], labels[test_index]
         
         # Set training data to knn 
-        knn.d = Euclidean()
+        knn.d = distance
         knn.x_data = X_train
         knn.labels = y_train
         knn.k_neighbours = k_neighbours
         knn.le = LabelEncoder(knn.labels)
-        knn.transformed_label = knn.le.fit_transform(knn.labels)
+        knn.transformed_label = knn.le.transform()
         knn.balltree = BallTree(knn.preprocess_data(), knn.d)
         # Predict value
-        predicted_value = knn.predict(X_test[0])
+        predicted_value = knn.predict(X_test[0], method=method)
         if (predicted_value != y_test[0]):
             predicted_error+=1
         cnt+=1
