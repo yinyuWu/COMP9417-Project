@@ -7,7 +7,7 @@ from BallTree import BallTree
 from scipy.io import arff
 from KNN import KNN
 from sklearn.model_selection import LeaveOneOut
-from sklearn.preprocessing import LabelEncoder
+from labelEncoder import LabelEncoder
 from distance import Euclidean, Manhattan
 
 # knn for classification
@@ -44,8 +44,8 @@ class KNN_Class(KNN):
     def __init__(self, x_data=[], labels=[], k_neighbours=7):
         super(KNN_Class, self).__init__(x_data, labels, k_neighbours)
         if (len(self.x_data)!=0):
-            self.le = LabelEncoder()
-            self.transformed_label = self.le.fit_transform(self.labels)
+            self.le = LabelEncoder(labels)
+            self.transformed_label = self.le.transform()
             #print(self.transformed_label)
             self.balltree = BallTree(self.preprocess_data(), self.d)
     
@@ -82,8 +82,8 @@ class KNN_Class(KNN):
     def extract_knn(self, q):
         neighbour = []
         for each in q:
-            predicted_v = np.array([each[0][-1]])
-            neighbour.append(self.le.inverse_transform(predicted_v)[0])
+            predicted_v = each[0][-1]
+            neighbour.append(self.le.inverse(predicted_v))
         #print(len(q))
         #print(len(neighbour))
         return neighbour
@@ -165,9 +165,9 @@ class WKNN_Class(KNN_Class):
         neighbour = []
         w = []
         for each in q:
-            predicted_v = np.array([each[0][-1]])
+            predicted_v = each[0][-1]
             weight = self.calc_weight(each[1])
-            neighbour.append(self.le.inverse_transform(predicted_v)[0])
+            neighbour.append(self.le.inverse(predicted_v))
             w.append(weight)
         #print(len(q))
         #print(len(neighbour))
@@ -244,7 +244,7 @@ def cross_validation(x_data, labels, knn, k_neighbours=7):
         knn.x_data = X_train
         knn.labels = y_train
         knn.k_neighbours = k_neighbours
-        knn.le = LabelEncoder()
+        knn.le = LabelEncoder(knn.labels)
         knn.transformed_label = knn.le.fit_transform(knn.labels)
         knn.balltree = BallTree(knn.preprocess_data(), knn.d)
         # Predict value
