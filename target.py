@@ -43,22 +43,6 @@ def calc_bayes_error(x_data, labels, target_f1, p1, target_f2, p2):
             err += target_f1.get_probability(x) * p2    
     return err
 
-# estimated bayes error
-# def calc_bayes_error(x_data, labels, target_f1, target_f2): 
-#     correct = 0
-#     for x, y in zip(x_data, labels):
-#         p_target1 = target_f1.get_probability(x)
-#         p_target2 = target_f2.get_probability(x)
-#         if p_target1 > p_target2:
-#             predicted = target_f1.class_label 
-#         else:
-#             predicted = target_f2.class_label 
-#         if int(predicted) == int(y): 
-#             correct += 1
-#     acc = correct/len(labels)
-#     print(f'Accuracy: {correct}/{len(labels)}')
-#     return 1 - acc
-
 """ Adding labels to data & shuffling for use in KNN """
 def make_useable_dataset(c1, label1, c2, label2):
     # add labels to the dataset
@@ -79,6 +63,16 @@ def generate_covariance_matrix(n):
     r = np.random.random((n,n))
     matrix = np.dot(r, r.transpose())
     return matrix
+
+#### functions to use in other files for easier use
+def create_target_function(num_features, class_label):
+    mean = generate_mean(num_features)
+    cov = generate_covariance_matrix(num_features)
+    return TargetFunction(mean, cov, num_features, class_label)
+
+def generate_data_with_labels(p, n, target0, target1):
+    class_0, class_1 = generate_dataset(p, n, target0, target1)
+    return make_useable_dataset(class_0, target0.class_label, class_1, target1.class_label)
 
 if __name__=='__main__':
     p = 0.5
