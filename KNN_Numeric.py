@@ -88,12 +88,25 @@ def cross_validation(x_data, labels, knn, k_neighbours=7, distance = Euclidean()
     
     # Determine the std deviation of predicted error
     print(f"Std deviation of predicted error of KNN: {np.std(predicted_error)}")     
-    
+
+""" Args: data, list<String>
+    Creates new column for each label (label name + '-numeric') that encodes categorical labels to integers 
+"""
+def convert_to_numeric(data, labels):
+    for label in labels:
+        data[label] = data[label].astype('category')
+        numeric_label = label + "-numeric"
+        data[numeric_label] = data[label].cat.codes 
+    return data
 
 def main():
     # Load data from autos.aff
     data_set = arff.loadarff('autos.arff')
-    data = pd.DataFrame(data_set[0])
+    data = pd.DataFrame(data_set[0])    
+
+    data = convert_to_numeric(data, ['make', 'fuel-type', 'aspiration', 'num-of-doors', 'body-style', 
+                'drive-wheels', 'engine-location', 'engine-type', 'num-of-cylinders', 
+                'fuel-system'])
     
     # Remove any categorical labels (Note: temporary as we can encode these categorical labels later)
     data.drop(['make', 'fuel-type', 'aspiration', 'num-of-doors', 'body-style', 
