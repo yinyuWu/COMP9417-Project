@@ -1,10 +1,10 @@
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import MinMaxScaler
-from distance import Manhattan, Euclidean
-from KNN import KNN
 from scipy.io import arff
 from sklearn.model_selection import LeaveOneOut
+from scaler import MinMaxScaler
+from distance import Manhattan, Euclidean
+from KNN import KNN
 
 # knn for numeric prediction
 
