@@ -104,11 +104,12 @@ def main():
     data_set = arff.loadarff('autos.arff')
     data = pd.DataFrame(data_set[0])    
 
+    # Make new numeric labels for each of these categorical labels 
     data = convert_to_numeric(data, ['make', 'fuel-type', 'aspiration', 'num-of-doors', 'body-style', 
                 'drive-wheels', 'engine-location', 'engine-type', 'num-of-cylinders', 
                 'fuel-system'])
     
-    # Remove any categorical labels (Note: temporary as we can encode these categorical labels later)
+    # Remove the old categorical labels 
     data.drop(['make', 'fuel-type', 'aspiration', 'num-of-doors', 'body-style', 
                 'drive-wheels', 'engine-location', 'engine-type', 'num-of-cylinders', 
                 'fuel-system'], axis=1, inplace=True)
