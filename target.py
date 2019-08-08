@@ -20,7 +20,6 @@ class TargetFunction:       # multivariate normal distributions
 
 """ Generate 'n' number of samples given p prior probability of class 0, and two target functions """
 def generate_dataset(p, n, target_f1, target_f2):    
-    np.random.seed(124934589)
     class_assign = np.random.uniform(low=0,high=1,size=n)
     class_0 = []
     class_1 = []
@@ -57,10 +56,10 @@ def make_useable_dataset(c1, label1, c2, label2):
     return x_data, labels
 
 def generate_mean(n):
-    return np.random.uniform(0,1,n)
+    return np.random.uniform(0,0.5,n)
 
 def generate_covariance_matrix(n):
-    r = np.random.random((n,n))
+    r = np.random.uniform(0,0.1,(n,n))
     matrix = np.dot(r, r.transpose())
     return matrix
 
@@ -75,9 +74,10 @@ def generate_data_with_labels(p, n, target0, target1):
     return make_useable_dataset(class_0, target0.class_label, class_1, target1.class_label)
 
 if __name__=='__main__':
+    np.random.seed(201923)
     p = 0.5
-    num_samples = 160
-    num_f = 10
+    num_samples = 10000
+    num_f = 30
 
     mean0 = generate_mean(num_f)
     cov0 = generate_covariance_matrix(num_f)
@@ -102,7 +102,7 @@ if __name__=='__main__':
     print(f'First 2 data points labels:\n{labels[:2]}')
 
     err = calc_bayes_error(x_data, labels, target0, p, target1, (1-p))
-    print(f'Bayes error rate on this dataset: {err:.8f}%')
+    print(f'Bayes error rate on this dataset: {err*100:.20f}%')
     # err = calc_bayes_error(x_data, labels, target0, target1)
     # print(f'Estimated Bayes error rate on this dataset: {err}%')
 
