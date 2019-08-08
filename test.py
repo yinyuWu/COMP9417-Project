@@ -2,11 +2,12 @@ import KNN_Class as knn_class
 import KNN_Numeric as knn_num
 import target as tg
 import pandas as pd
+import matplotlib.pyplot as plt
 from distance import Euclidean, Manhattan
 from scipy.io import arff
 
 
-def standard_classification_test():
+def standard_classification_test(distance = Euclidean()):
     # preprocess
     data_set = arff.loadarff('ionosphere.arff')
     data = pd.DataFrame(data_set[0]).to_numpy()
@@ -16,10 +17,14 @@ def standard_classification_test():
     # use cross validation to test knn classification by standard UCI data ionosphere
     # use of cross validation: cross_validation(x_data, labels, knn, k_neighbours, method, distance)
     # method: BallTree or None. Distance: Manhattan distance or Eucilidean distance
+    acc = []
     print("Cross validation for KNN classification")
-    for i in range(1, 8):
-        knn = knn_class.KNN_Class()
-        knn_class.cross_validation(x_data, labels, knn, i)
+    for i in range(1, 16):
+        if i%2 == 1:
+            knn = knn_class.KNN_Class()
+            acc.append(knn_class.cross_validation(x_data, labels, knn, i, distance=distance))
+    return acc
+
 
 def weighted_classification_test():
     # preprocess
@@ -31,10 +36,13 @@ def weighted_classification_test():
     # use cross validation to test weighted knn classification by standard UCI data ionosphere
     # use of cross validation: cross_validation(x_data, labels, knn, k_neighbours, method, distance)
     # method: BallTree or None. Distance: Manhattan distance or Eucilidean distance
+    acc = []
     print("Cross validation for weighterd KNN classification")
-    for i in range(1, 8):
-        wknn = knn_class.WKNN_Class()
-        knn_class.cross_validation(x_data, labels, wknn, i)
+    for i in range(1, 16):
+        if i%2 == 1:
+            wknn = knn_class.WKNN_Class()
+            acc.append(knn_class.cross_validation(x_data, labels, wknn, i))
+    return acc
 
 def standard_numeric_test():
     # Load data from autos.aff
@@ -106,8 +114,8 @@ def target_test():
     tg.cross_validation(x_data, labels, knn_class.KNN_Class())
 
 if __name__ == "__main__":
-    #standard_classification_test()
-    weighted_classification_test()
+    standard_classification_test(distance=Manhattan())
+    #weighted_classification_test()
     #standard_numeric_test()
     #weighted_numeric_test()
     #target_test()

@@ -256,7 +256,8 @@ def cross_validation(x_data, labels, knn, k_neighbours=7, method = None, distanc
         cnt+=1
     
     # Determine the std deviation of predicted error
-    print(f"Predicted error of KNN Classification: {predicted_error/cnt}") 
+    print(f"Predicted error of KNN Classification: {predicted_error/cnt}")
+    return predicted_error/cnt
 
 
 
