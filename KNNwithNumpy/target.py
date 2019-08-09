@@ -35,11 +35,11 @@ def calc_bayes_error(x_data, labels, target_f1, p1, target_f2, p2):
     for x, y in zip(x_data, labels):
         # p(error|x) * p(x)
         if y == target_f1.class_label:
-            # error of classification in distribution 2 * prior of distribution 1
-            err += target_f2.get_probability(x) * p1
+            # error of classification in distribution 2 * prior of distribution 2
+            err += target_f2.get_probability(x) * p2 / (target_f2.get_probability(x)*p2 + target_f1.get_probability(x)*p1)
         else:
-            # error of classification in distribution 1 * prior of distribution 2
-            err += target_f1.get_probability(x) * p2
+            # error of classification in distribution 1 * prior of distribution 1
+            err += target_f1.get_probability(x) * p1 / (target_f2.get_probability(x)*p2 + target_f1.get_probability(x)*p1)
     return err
 
 """ Adding labels to data & shuffling for use in KNN """
