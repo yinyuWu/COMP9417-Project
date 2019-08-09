@@ -88,7 +88,7 @@ def weighted_numeric_test():
     for i in range(1,10):
         knn_num.cross_validation(x_data, labels, knn_num.WKNN_Numeric(), i)
 
-def target_test():
+def target_bayes_err():
     # standard data
     data_set = arff.loadarff('ionosphere.arff')
     data = pd.DataFrame(data_set[0]).to_numpy()
@@ -104,14 +104,17 @@ def target_test():
     
     # create dataset based on target functions with p probability for target0
     x_data, labels = tg.generate_data_with_labels(p, num_samples, target0, target1)
-    print(x_data[:2], labels[:2])
+    #print(x_data[:2], labels[:2])
 
     err = tg.calc_bayes_error(x_data, labels, target0, p, target1, (1-p))
     print(f'Bayes error rate on this dataset: {err:.8f}%')
+    return err
 
+    '''
     print('------------------------------')
     print('Using dataset with KNN...')
-    tg.cross_validation(x_data, labels, knn_class.KNN_Class())
+    knn_class.cross_validation(x_data, labels, knn_class.KNN_Class())
+    '''
 
 if __name__ == "__main__":
     standard_classification_test(distance=Manhattan())
