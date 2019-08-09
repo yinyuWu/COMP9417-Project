@@ -248,7 +248,8 @@ def cross_validation(x_data, labels, knn, k_neighbours=7, method = None, distanc
         knn.k_neighbours = k_neighbours
         knn.le = LabelEncoder(knn.labels)
         knn.transformed_label = knn.le.transform()
-        knn.balltree = BallTree(knn.preprocess_data(), knn.d)
+        if method == "BallTree":
+            knn.balltree = BallTree(knn.preprocess_data(), knn.d)
         # Predict value
         predicted_value = knn.predict(X_test[0], method=method)
         if (predicted_value != y_test[0]):

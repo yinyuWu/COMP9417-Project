@@ -2,6 +2,7 @@ import KNN_Class as knn_class
 import KNN_Numeric as knn_num
 import target as tg
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 from distance import Euclidean, Manhattan
 from scipy.io import arff
@@ -94,31 +95,39 @@ def target_bayes_err():
     data = pd.DataFrame(data_set[0]).to_numpy()
 
     # set known parameters
+    np.random.seed(201923)
     p = 0.5
     num_samples = data.shape[0]
-    num_f = data.shape[1]-1
+    num_f = data.shape[1] - 1
     
-    # create target functions based on number of features (dimension)
-    target0 = tg.create_target_function(num_f, 0)
-    target1 = tg.create_target_function(num_f, 1)
-    
-    # create dataset based on target functions with p probability for target0
-    x_data, labels = tg.generate_data_with_labels(p, num_samples, target0, target1)
-    #print(x_data[:2], labels[:2])
+    mean0 = tg.generate_mean(num_f)
+    cov0 = tg.generate_covariance_matrix(num_f)
+    target0 = tg.TargetFunction(mean0, cov0, num_f, 0)
+
+    mean1 = tg.generate_mean(num_f)
+    cov1 = tg.generate_covariance_matrix(num_f)
+    target1 = tg.TargetFunction(mean1, cov1, num_f, 1)
+
+    print('------------------------------')
+    print(f'Generating data based on target function {p} probability between the two classes...')
+
+    class_0, class_1 = tg.generate_dataset(p, num_samples, target0, target1)
+    print(class_0.shape, class_1.shape)
+    print(f'First 2 data points of class 0: \n{class_0[:2]}')
+    print(f'First 2 data points of class 1: \n{class_1[:2]}')
+
+    print('------------------------------')
+    print('Creating data set')
+    x_data, labels = tg.make_useable_dataset(class_0, 0, class_1, 1)
+    print(f'First 2 data points of x_data:\n{x_data[:2]}')
+    print(f'First 2 data points labels:\n{labels[:2]}')
 
     err = tg.calc_bayes_error(x_data, labels, target0, p, target1, (1-p))
-    print(f'Bayes error rate on this dataset: {err:.8f}%')
-    return err
-
-    '''
-    print('------------------------------')
-    print('Using dataset with KNN...')
-    knn_class.cross_validation(x_data, labels, knn_class.KNN_Class())
-    '''
+    print(f'Bayes error rate on this dataset: {err*100:.20f}%')
 
 if __name__ == "__main__":
-    standard_classification_test(distance=Manhattan())
+    #standard_classification_test(distance=Manhattan())
     #weighted_classification_test()
     #standard_numeric_test()
     #weighted_numeric_test()
-    #target_test()
+    target_bayes_err()
