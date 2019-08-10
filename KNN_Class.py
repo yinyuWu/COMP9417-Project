@@ -104,7 +104,8 @@ class KNN_Class(KNN):
 
         # if current node is a leaf node
         if (balltree.right_child == None and balltree.left_child == None and centroid_ux_dist < first_ux_dist):
-            return self.add_queue(Q, (balltree.data, centroid_ux_dist))
+            Q = self.add_queue(Q, (balltree.data, centroid_ux_dist))
+            return Q
 
 
         # if current node is internal node
@@ -271,17 +272,16 @@ def main():
     #print(x_data.shape)
     #Test_KNN_Class(x_data, labels)
 
-    (acc, time) = Test_KNN_Class(x_data, labels)
-    print("Accuracy of knn is " + str(acc), ", time is " + str(time))
-
-
-
-    '''
+    #(acc, time) = Test_KNN_Class(x_data, labels)
+    #print("Accuracy of knn is " + str(acc), ", time is " + str(time))
+    #knn = KNN_Class(x_data, labels, k_neighbours=5)
+    
     # Cross Validation for KNN
     print("Cross Validation for normal KNN")
     for i in range(1,10):
         cross_validation(x_data, labels, KNN_Class(), i)
     # Cross Validiation for KNN Weighted
+    '''
     print("Cross Validation for weighted KNN")
     for i in range(1, 10):
         cross_validation(x_data, labels, WKNN_Class(), i)

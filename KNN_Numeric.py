@@ -87,7 +87,8 @@ def cross_validation(x_data, labels, knn, k_neighbours=7, distance = Euclidean()
         predicted_error.append(predicted_value - y_test[0])
     
     # Determine the std deviation of predicted error
-    print(f"Std deviation of predicted error of KNN: {np.std(predicted_error)}")     
+    print(f"Std deviation of predicted error of KNN: {np.std(predicted_error)}")
+    return  np.std(predicted_error)
 
 """ Args: data, list<String>
     Creates new column for each label (label name + '-numeric') that encodes categorical labels to integers 
@@ -112,10 +113,11 @@ def main():
     # Remove the old categorical labels 
     data.drop(['make', 'fuel-type', 'aspiration', 'num-of-doors', 'body-style', 
                 'drive-wheels', 'engine-location', 'engine-type', 'num-of-cylinders', 
-                'fuel-system'], axis=1, inplace=True)
+                'fuel-system', 'normalized-losses'], axis=1, inplace=True)
 
     # Remove missing values
     filtered = data.dropna()
+    #print(data)
     print(filtered.shape)
 
     # Separate labels & x-data
@@ -126,14 +128,17 @@ def main():
     # Test_KNN_Numeric(x_data, labels)
 
     # Cross Validation for KNN
+    '''
     print("Cross Validation for normal KNN")
     for i in range(1,10):
         cross_validation(x_data, labels, KNN_Numeric(), i)
-
+    
+    '''
     # Cross Validiation for KNN Weighted
     print("Cross Validation for weighted KNN")
     for i in range(1, 10):
         cross_validation(x_data, labels, WKNN_Numeric(), i)
+    
 
 if __name__ == "__main__":
     main()

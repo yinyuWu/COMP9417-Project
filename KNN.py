@@ -32,6 +32,7 @@ class KNN(ABC):
     def default_search(self, ux):
         dist = []
         for i in range(self.x_data.shape[0]):
+            #print(self.x_data[i])
             p_distance = self.d.distance(self.x_data[i], ux)
             dist.append((self.labels[i], p_distance))
         dist = sorted(dist, key = lambda d : d[self.DISTANCE_INDEX])
