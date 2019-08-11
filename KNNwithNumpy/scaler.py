@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from scipy.io import arff
 
 class MinMaxScaler:

@@ -1,5 +1,5 @@
 import numpy as np
-from KNN.WeightFunctions import *
+from WeightFunctions import *
 
 class SimpleKNNRegressor:
     def __init__(self, n_neighbours, dist_metric='euclidean', weight_func=uniform):
