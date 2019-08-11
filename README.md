@@ -18,8 +18,8 @@ UNSW COMP9417 project: Topic2.2 Nearest Neighbour(kNN).
 6. scaler.py is our own MinMaxScaler
 
 # requirements:
-numpy
-scipy
-pandas
-sklearn
-jupyter
+numpy,
+scipy,
+pandas,
+sklearn,
+jupyter.
