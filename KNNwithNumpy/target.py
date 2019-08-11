@@ -16,7 +16,7 @@ class TargetFunction:       # multivariate normal distributions
         return np.random.multivariate_normal(self.mean, self.cov)
 
     def get_probability(self, x):
-        return multivariate_normal.pdf(x, mean=self.mean, cov=self.cov)
+        return multivariate_normal.logpdf(x, mean=self.mean, cov=self.cov)
 
 """ Generate 'n' number of samples given p prior probability of class 0, and two target functions """
 def generate_dataset(p, n, target_f1, target_f2):
@@ -32,14 +32,17 @@ def generate_dataset(p, n, target_f1, target_f2):
 
 def calc_bayes_error(x_data, labels, target_f1, p1, target_f2, p2):
     err = 0
+    n = len(x_data)
     for x, y in zip(x_data, labels):
         # p(error|x) * p(x)
         if y == target_f1.class_label:
-            # error of classification in distribution 2 * prior of distribution 2
-            err += target_f2.get_probability(x) * p2 / (target_f2.get_probability(x)*p2 + target_f1.get_probability(x)*p1)
+            # error of classification in distribution 2 * prior of distribution 2 * probability of x occuring
+            if target_f2.get_probability(x) > 0:
+                err += target_f2.get_probability(x) / (target_f2.get_probability(x) + target_f1.get_probability(x)) * p2 * (1/n)
         else:
-            # error of classification in distribution 1 * prior of distribution 1
-            err += target_f1.get_probability(x) * p1 / (target_f2.get_probability(x)*p2 + target_f1.get_probability(x)*p1)
+            # error of classification in distribution 1 * prior of distribution 1 * probability of x occuring
+            if target_f1.get_probability(x) > 0:
+                err += target_f1.get_probability(x) / (target_f2.get_probability(x) + target_f1.get_probability(x)) * p1 * (1/n)
     return err
 
 """ Adding labels to data & shuffling for use in KNN """
