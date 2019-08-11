@@ -1,5 +1,7 @@
-# COMP9417-Project
+## COMP9417-Project
 UNSW COMP9417 project: Topic2.2 Nearest Neighbour(kNN).
+
+#instructions:
 
 0. KNN is an abstract parent class of both KNN classification and KNN numerict prediction. labelEncoder.py is our own class to convert categorical labels into integers.
 
