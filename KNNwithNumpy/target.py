@@ -76,21 +76,20 @@ def generate_data_with_labels(p, n, target0, target1):
 if __name__=='__main__':
     np.random.seed(201923)
     p = 0.5
-    num_samples = 10000
-    num_f = 30
-
-    mean0 = generate_mean(num_f)
+    num_samples = 351
+    num_f = 33
+    mean = generate_mean(num_f)
+    
     cov0 = generate_covariance_matrix(num_f)
-    target0 = TargetFunction(mean0, cov0, num_f, 0)
+    target0 = TargetFunction(mean, cov0, num_f, 0)
 
-    mean1 = generate_mean(num_f)
     cov1 = generate_covariance_matrix(num_f)
-    target1 = TargetFunction(mean1, cov1, num_f, 1)
+    target1 = TargetFunction(mean, cov1, num_f, 1)
 
     print('------------------------------')
     print(f'Generating data based on target function {p} probability between the two classes...')
 
-    class_0, class_1 = generate_dataset(p, num_samples, target0, target1)
+    class_0, class_1 = generate_dataset(p, 10000, target0, target1)
     print(class_0.shape, class_1.shape)
     print(f'First 2 data points of class 0: \n{class_0[:2]}')
     print(f'First 2 data points of class 1: \n{class_1[:2]}')
@@ -108,4 +107,6 @@ if __name__=='__main__':
 
     print('------------------------------')
     print('Using dataset with KNN...')
+    x_data = x_data[:num_samples]
+    labels = labels[:num_samples]
     cross_validation(x_data, labels, KNN_Class())
