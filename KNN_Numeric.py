@@ -87,8 +87,8 @@ def cross_validation(x_data, labels, knn, k_neighbours=7, distance = Euclidean()
         predicted_error.append(predicted_value - y_test[0])
     
     # Determine the std deviation of predicted error
-    print(f"Std deviation of predicted error of KNN: {np.std(predicted_error)}")
-    return  np.std(predicted_error)
+    print(f"Mean of predicted error of KNN: {np.mean(predicted_error)}")
+    return  np.mean(predicted_error)
 
 """ Args: data, list<String>
     Creates new column for each label (label name + '-numeric') that encodes categorical labels to integers 
