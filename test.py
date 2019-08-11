@@ -99,19 +99,18 @@ def target_bayes_err():
     p = 0.5
     num_samples = data.shape[0]
     num_f = data.shape[1] - 1
+    mean = tg.generate_mean(num_f)
     
-    mean0 = tg.generate_mean(num_f)
     cov0 = tg.generate_covariance_matrix(num_f)
-    target0 = tg.TargetFunction(mean0, cov0, num_f, 0)
+    target0 = tg.TargetFunction(mean, cov0, num_f, 0)
 
-    mean1 = tg.generate_mean(num_f)
     cov1 = tg.generate_covariance_matrix(num_f)
-    target1 = tg.TargetFunction(mean1, cov1, num_f, 1)
+    target1 = tg.TargetFunction(mean, cov1, num_f, 1)
 
     print('------------------------------')
     print(f'Generating data based on target function {p} probability between the two classes...')
 
-    class_0, class_1 = tg.generate_dataset(p, num_samples, target0, target1)
+    class_0, class_1 = tg.generate_dataset(p, 10000, target0, target1)
     print(class_0.shape, class_1.shape)
     print(f'First 2 data points of class 0: \n{class_0[:2]}')
     print(f'First 2 data points of class 1: \n{class_1[:2]}')
@@ -121,7 +120,9 @@ def target_bayes_err():
     x_data, labels = tg.make_useable_dataset(class_0, 0, class_1, 1)
     print(f'First 2 data points of x_data:\n{x_data[:2]}')
     print(f'First 2 data points labels:\n{labels[:2]}')
-
+    
+    x_data = x_data[:num_samples]
+    labels = labels[:num_samples]
     err = tg.calc_bayes_error(x_data, labels, target0, p, target1, (1-p))
     print(f'Bayes error rate on this dataset: {err*100:.20f}%')
 
