@@ -4,10 +4,8 @@ UNSW COMP9417 project: Topic2.2 Nearest Neighbour(kNN).
 # instructions:
 
 0. KNN is an abstract parent class of both KNN classification and KNN numerict prediction. 
-
-labelEncoder.py is our own class to convert categorical labels into integers. 
-
-scaler.py is our own MinMaxScaler
+&labelEncoder.py is our own class to convert categorical labels into integers. 
+&scaler.py is our own MinMaxScaler
 
 1. Classification: KNN_Class.py contains both naive KNN algorithm, weighted KNN algorithm for classification and leave-one-out cross validation of KNN classifiers.
 
