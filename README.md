@@ -16,3 +16,10 @@ UNSW COMP9417 project: Topic2.2 Nearest Neighbour(kNN).
 5. BallTree.py is a data structure of ball tree which is used to find k nearest neighbours in KNN classification.
 
 6. scaler.py is our own MinMaxScaler
+
+# requirements:
+numpy
+scipy
+pandas
+sklearn
+jupyter
