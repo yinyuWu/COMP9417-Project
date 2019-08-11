@@ -7,6 +7,39 @@ from distance import Manhattan, Euclidean
 from KNN import KNN
 
 # knn for numeric prediction
+ #approach 1: Inverse distance
+class Weight_approach1:
+    def __init__(self):
+        self.name = "inverse"
+    
+    def calc_weight(self, dist):
+        return 1/(dist+0.00000000001)
+
+#approach 2: Inverse distance squared
+class Weight_approach2:
+    def __init__(self):
+        self.name = "inverse squared"
+
+    def calc_weight(self, dist):
+        return 1/(dist*dist+0.00000000001)
+
+
+ #approach 3: Exponential 
+class Weight_approach3:
+    def __init__(self):
+        self.name = "exponential"
+    def calc_weight(self, dist):
+        return np.exp(-dist)
+
+#appoarch 4
+class Weight_approach4:
+    def __init__(self):
+        self.name = "Dudani"
+    def calc_weight(self, dist, x):
+        if len(dist) == 1:
+            return dist[0]+0.0000000000001
+        else:
+            return (dist[-1]-x+0.000000000001) / (dist[-1]-dist[0] + 0.0001) # +0.0001 in case all k nearest have same dist
 
 class KNN_Numeric(KNN):
     def __init__(self, x_data=[], labels=[], k_neighbours=7):
@@ -24,7 +57,17 @@ class KNN_Numeric(KNN):
 
 
 class WKNN_Numeric(KNN_Numeric):
-    def __init__(self, x_data=[], labels=[], k_neighbours=7):
+    def __init__(self, x_data=[], labels=[], k_neighbours=7,weight = 1):
+        if weight == 1:
+            self.w = Weight_approach1()
+        elif weight == 2:
+            self.w = Weight_approach2()
+        elif weight == 3:
+            self.w = Weight_approach3()
+        elif weight == 4:
+            self.w = Weight_approach4()
+        else:
+            self.w = Weight_approach1()
         super(WKNN_Numeric, self).__init__(x_data, labels, k_neighbours)
     
     def predict_value(self, neighbours):
@@ -32,15 +75,17 @@ class WKNN_Numeric(KNN_Numeric):
         total_value = 0
         total_weight = 0
         for i in range(len(neighbours)):
-            weight = self.calc_weight(neighbours[i][self.DISTANCE_INDEX])
+            if self.w.name == "Dudani":
+                ng = []
+                for j in range(len(neighbours)):
+                    ng.append(neighbours[j][self.DISTANCE_INDEX])
+                weight = self.w.calc_weight(ng, neighbours[i][self.DISTANCE_INDEX])
+            else:
+                weight = self.w.calc_weight(neighbours[i][self.DISTANCE_INDEX])
             total_weight += weight 
             total_value += (weight*neighbours[i][self.LABEL_INDEX])
         return total_value/total_weight     
 
-    def calc_weight(self, dist=1):  # Temporary formula for weight
-        if dist == 0:
-            dist = 0.00000000001
-        return 1/dist
 
     def predict(self, ux):
         dist = self.default_search(ux)
@@ -84,7 +129,7 @@ def cross_validation(x_data, labels, knn, k_neighbours=7, distance = Euclidean()
         # Predict value
         predicted_value = knn.predict(X_test[0])
         # Store difference between predicted value and actual value in array 
-        predicted_error.append(predicted_value - y_test[0])
+        predicted_error.append(np.abs(predicted_value - y_test[0]))
     
     # Determine the std deviation of predicted error
     print(f"Mean of predicted error of KNN: {np.mean(predicted_error)}")
@@ -137,7 +182,7 @@ def main():
     # Cross Validiation for KNN Weighted
     print("Cross Validation for weighted KNN")
     for i in range(1, 10):
-        cross_validation(x_data, labels, WKNN_Numeric(), i)
+        cross_validation(x_data, labels, WKNN_Numeric(weight=4), i)
     
 
 if __name__ == "__main__":

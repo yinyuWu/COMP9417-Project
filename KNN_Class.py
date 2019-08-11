@@ -178,12 +178,12 @@ class Weight_approach3:
 #appoarch 4
 class Weight_approach4:
     def __init__(self):
-        self.name = "inverse"
-    def calc_weight(self, dist):
-        if dist.shape[0]==1:
-            return np.array([1])
+        self.name = "Dudani"
+    def calc_weight(self, dist, x):
+        if len(dist) == 1:
+            return dist[0]
         else:
-            return (dist[-1]-dist) / (dist[-1]-dist[0] + 0.0001) # +0.0001 in case all k nearest have same dist
+            return (dist[-1]-x) / (dist[-1]-dist[0] + 0.0001) # +0.0001 in case all k nearest have same dist
     
 
 class WKNN_Class(KNN_Class):
@@ -206,7 +206,13 @@ class WKNN_Class(KNN_Class):
         w = []
         for each in q:
             predicted_v = each[0][-1]
-            weight = self.w.calc_weight(each[1])
+            if self.w.name == "Dudani":
+                ng = []
+                for m in q:
+                    ng.append(m[1])
+                weight = self.w.calc_weight(ng, each[1])
+            else:
+                weight = self.w.calc_weight(each[1])
             neighbour.append(self.le.inverse(predicted_v))
             w.append(weight)
         #print(len(q))
@@ -228,7 +234,13 @@ class WKNN_Class(KNN_Class):
             neighbours = []
             weights = []
             for k in range(self.k_neighbours):
-                w = self.w.calc_weight(dist[k][1])
+                if self.w.name == "Dudani":
+                    ng = []
+                    for each in dist:
+                        ng.append(each[1])
+                    w = self.w.calc_weight(ng, dist[k][1])
+                else:
+                    w = self.w.calc_weight(dist[k][1])
                 neighbours.append(dist[k][0])
                 weights.append(w)
         
@@ -248,7 +260,6 @@ class WKNN_Class(KNN_Class):
             freq = count.get(key,0)
             neighbour_dict[key] = w*freq
         
-
         sorted_neighbour = sorted(neighbour_dict.items(), key=lambda kv:kv[1], reverse=True)
         return sorted_neighbour[0][0]
 
@@ -324,7 +335,7 @@ def main():
     '''
     print("Cross Validation for weighted KNN")
     for i in range(1, 10):
-        cross_validation(x_data, labels, WKNN_Class(weight=3), i)
+        cross_validation(x_data, labels, WKNN_Class(weight=4), i)
     
 
     
