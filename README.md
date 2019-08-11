@@ -9,4 +9,4 @@ UNSW COMP9417 project: Topic2.2 Nearest Neighbour(kNN).
 
 3. Target functions and generated data: Target.py contains target functions and functions related to generated data.
 
-4. summary, notebook jupyter notebooks and KNNwithNumpy file contains all experiments we introduce in our report.
+4. summary, notebook jupyter notebooks and KNNwithNumpy folder contains all experiments we introduce in our report.
