@@ -14,4 +14,4 @@ class Manhattan():
         self.method = 'Manhattan'
 
     def distance(self, x1, x2):
-        return np.sum(np.abs(x1-x2)[0])
+        return np.sum(np.abs(x2 - x1))
